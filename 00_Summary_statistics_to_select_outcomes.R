@@ -1,4 +1,10 @@
-setwd("/dcs05/ladd/NDEpi/data/Projects/InProgress/zhe/SEED_teen_phenotype_LOI")
+#######################################################
+# Generate summary statistics for adolescent outcomes #
+# Author: Johnathan He                                #
+# Date: August 21. 2023                               #
+#######################################################
+
+setwd("/dcs05/ladd/NDEpi/data/Projects/SEED/LOI/17/SEED_teen_phenotype_LOI")
 
 require(tidyverse)
 require(gtsummary)
@@ -82,8 +88,7 @@ SEED_teen <- SEED_teen %>%   # BMI
 SEED_teen <- SEED_teen %>% 
     mutate(BMI_cat = case_when(BMI < 18.5 ~ 1,                 # Underweight
                                BMI >= 18.5 & BMI < 25.0 ~ 2,   # Normal weight
-                               BMI >= 25.0 & BMI < 30.0 ~ 3,   # Overweight
-                               BMI >= 30.0 ~ 4))               # Obesity
+                               BMI >= 25.0 ~ 3))               # Overweight or obesity
 
 SEED_teen <- SEED_teen %>%  # Subjective well-being
     mutate(HS_A3_HEALTH = ifelse(HS_A3_HEALTH == "-1"|is.na(HS_A3_HEALTH), as.numeric(NA), as.numeric(HS_A3_HEALTH)))
@@ -181,7 +186,7 @@ df_res %>%
 
 ### Selected phenotypes
 df_comb = data.frame(t(combn(sort(names(SEED_teen_pheno %>% 
-                                            select(ADHD, Anxiety, `Developmental delay`, `Language disorder`, `Sensory integration`,
+                                            select(ADHD, Anxiety, Depression, `Language disorder`, `Sensory integration`,
                                                    BMI, `Verbal communication`))), 2)), stringsAsFactors = F)
 
 df_res = map2_df(df_comb$X1, df_comb$X2, f)
@@ -213,6 +218,6 @@ SEED_teen_pheno %>%
 
 # Selected phenotypes
 SEED_teen_pheno %>% 
-    select(DR_FC, ADHD, Anxiety, `Developmental delay`, `Language disorder`, `Sensory integration`, BMI, `Verbal communication`) %>% 
+    select(DR_FC, ADHD, Anxiety, Depression, `Language disorder`, `Sensory integration`, BMI, `Verbal communication`) %>% 
     tbl_summary(by = "DR_FC", missing = "no") %>% 
     add_overall()
