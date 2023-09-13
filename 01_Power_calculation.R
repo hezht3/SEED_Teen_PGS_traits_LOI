@@ -8,7 +8,7 @@ setwd("/dcs05/ladd/NDEpi/data/Projects/SEED/LOI/17/SEED_teen_phenotype_LOI")
 
 require(tidyverse)
 require(gtsummary)
-require(pwrss)
+require(avengeme)
 
 
 #########
@@ -102,27 +102,32 @@ SEED_teen %>%
 #####################
 # Power calculation #
 #####################
-# Individual associations
-power.rslt <- NULL
-for(prob in c(0.08, 0.10, 0.12)) {
-    for(or in c(1.5, 1.6, 1.7)) {
-        power.rslt.current <- tibble(p0 = prob, odds.ratio = or,
-                                     power = pwrss.z.logistic(n = 392, p0 = prob, odds.ratio = or, r2.other.x = 0.10, 
-                                                              alpha = 0.05, dist = "normal")$power)
-        power.rslt <- bind_rows(power.rslt, power.rslt.current)
-    }
-}
+# ASD & ADHD
+polygenescore(1000000, 
+              n = c(18381+27969, 392), 
+              vg1 = 0.025, 
+              cov12 = 0.38, 
+              binary = TRUE, 
+              sampling = c(18381/(8381+27969), 125/392), 
+              pupper = c(0, 1), 
+              prevalence = 1/44)
 
-tiff("./Output/Figure 1. Power calculation.tiff",
-     width = 2100, height = 1350, pointsize = 5, res = 300)
-power.rslt %>% 
-    mutate(p0 = factor(p0, levels = c(0.08, 0.10, 0.12), labels = c("8%", "10%", "12%"))) %>% 
-    ggplot(aes(x = odds.ratio, y = power, color = p0, group = p0)) +
-    geom_point() +
-    geom_line() +
-    xlab("Detectable odds ratio") +
-    ylab("Power") +
-    ggsci::scale_color_nejm(name = "Base probability under H0") +
-    theme_bw() +
-    theme(legend.position = "bottom")
-dev.off()
+# ASD & Anxiety
+polygenescore(1000000, 
+              n = c(18381+27969, 392), 
+              vg1 = 0.025, 
+              cov12 = 0.22, 
+              binary = TRUE, 
+              sampling = c(18381/(8381+27969), 125/392), 
+              pupper = c(0, 1), 
+              prevalence = 1/44)
+
+# ASD & Depression
+polygenescore(1000000, 
+              n = c(18381+27969, 392), 
+              vg1 = 0.025, 
+              cov12 = 0.54, 
+              binary = TRUE, 
+              sampling = c(18381/(8381+27969), 125/392), 
+              pupper = c(0, 1), 
+              prevalence = 1/44)
